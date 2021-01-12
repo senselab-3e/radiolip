@@ -37,7 +37,7 @@
 
   <script type="text/javascript">
 
-    var metadata = { name: null , show: null };
+    var metadata = { name: ' ' , show: ' ' };
     var level = 0;
     var playing = false;
 
@@ -69,11 +69,11 @@
 
     function getMetadata(){
       $.getJSON( 'https://radiolip.airtime.pro/api/live-info', function( data ) {
-        if(data.current && data.currentShow) {
-          metadata = {
-            name: data.current.name,
-            show: data.currentShow[0].name
-          };
+        if(data.current) {
+          metadata.name = data.current.name;
+        }
+        if(data.currentShow[0]) {
+          metadata.show = data.currentShow[0].name;
         }
       });
 
