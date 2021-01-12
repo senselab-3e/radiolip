@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv=“Content-Security-Policy” content=“upgrade-insecure-requests”>
+    <title>rrraaadiiiiioooliipppzzzeeehh</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.75/Tone.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+    <link rel="shortcut icon" href="blinky.png" />
+
+    <style>
+
+      #container{
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%)
+      }
+
+      canvas:hover{
+        cursor: pointer;
+      }
+
+    </style>
+
+</head>
+
+<body>
+  <div id="container"></div>
+  <audio id="radio-lip" crossorigin="anonymous">
+    <source src="https://radiolip.out.airtime.pro/radiolip_a" type="audio/mpeg">
+    <!-- <source src="http://radiolip.out.airtime.pro:8000/radiolip_a" type="audio/mpeg"> -->
+  </audio>
+
+  <script type="text/javascript">
+
+    var metadata = { name: null , show: null };
+    var level = 0;
+    var playing = false;
+
+    var follower = new Tone.Follower(0.05);
+    var meter = new Tone.Meter();
+    var gain = new Tone.Gain(4.0);
+    var input = new Tone.Gain();
+
+    var audioCtx = Tone.context;
+    var radiolip = document.getElementById('radio-lip');
+    var stream = audioCtx.createMediaElementSource(radiolip);
+
+    Tone.connect(stream, input, [inputNum=0], [outputNum=0]);
+
+    follower.connect(meter);
+    gain.fan(follower);
+    input.fan(gain, Tone.Master);
+
+    function repeat(time) {
+      var dBfs = meter.getValue();
+      level = Math.pow(10, dBfs/20);
+    }
+
+    Tone.Transport.scheduleRepeat(time => {
+      repeat(time);
+    }, "8n");
+    Tone.Transport.bpm.value = 600;
+    Tone.Transport.start();
+
+    function getMetadata(){
+      $.getJSON( 'https://radiolip.airtime.pro/api/live-info', function( data ) {
+        if(data.current && data.currentShow) {
+          metadata = {
+            name: data.current.name,
+            show: data.currentShow[0].name
+          };
+        }
+      });
+
+      setTimeout(getMetadata, 5000);
+    }
+    getMetadata();
+
+  </script>
+  <script type="text/javascript" src="ellipses.js"></script>
+</body>
+
+</html>
